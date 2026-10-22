@@ -42,3 +42,54 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
+
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+# Virtual environment directories
+venv/
+env/
+*.env
+
+# Flask instance folder
+instance/
+
+# IDE/editor config files
+.vscode/
+.idea/
+
+# macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Coverage files and test-related directories
+*.coverage
+coverage/
+
+# Backup and swap files
+*.bak
+*.swp
+
+# Environment files (e.g., dotenv files)
+*.env
+.venv
+
+
+# Python egg and distribution files
+*.egg
+*.egg-info
+dist/
+build/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+#volume folder
+.MongoData
+MongoData
