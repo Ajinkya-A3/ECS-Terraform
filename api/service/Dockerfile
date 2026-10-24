@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 RUN mkdir /data 
-USER appuser
+
 
 ENV DLQ_PATH=/data/dlq.db
 EXPOSE 8000

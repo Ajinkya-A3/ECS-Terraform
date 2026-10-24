@@ -2,8 +2,8 @@ services:
   mock:
     build: ./mock
     environment:
-      MOCK_FAIL_RATE: ${MOCK_FAIL_RATE:-0.20}
-      MOCK_SIGMA: ${MOCK_SIGMA:-0.6}
+      MOCK_FAIL_RATE: 0.20
+      MOCK_SIGMA: 0.6
     ports:
       - "9000:9000"
     healthcheck:
@@ -16,13 +16,19 @@ services:
     build: ./service
     environment:
       PIPELINE_BACKEND: http
-      PIPELINE_URL: http://mock:9000      # compose DNS name of the mock container
-      REQUEST_TIMEOUT_S: "3"
-      RETRY_ATTEMPTS: "3"
-      BREAKER_FAIL_MAX: "5"
-      BREAKER_RESET_S: "15"
+      PIPELINE_URL: http://mock:9000
+
+      REQUEST_TIMEOUT_S: 3
+      RETRY_ATTEMPTS: 3
+      RETRY_INITIAL_S: 0.2
+      RETRY_MAX_S: 2.0
+
+      BREAKER_FAIL_MAX: 5
+      BREAKER_RESET_S: 15
+
+      DLQ_PATH: /data/dlq.db
     volumes:
-      - dlq-data:/data                    # DLQ survives restarts
+      - dlq-data:/data
     ports:
       - "8000:8000"
     depends_on:
