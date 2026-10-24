@@ -35,12 +35,21 @@ class ResilientPipeline:
     def __init__(self, backend: Pipeline, s: Settings):
         self._backend = backend
         self._s = s
+        self.last_error: str | None = None  # most recent real backend failure
         self.breaker = pybreaker.CircuitBreaker(
             fail_max=s.breaker_fail_max,
             reset_timeout=s.breaker_reset_s,
             listeners=[_BreakerLogger()],
             name="pipeline",
         )
+
+    def _call_backend(self, event_id: str, audio_ref: str) -> PipelineResult:
+        """Run the backend and remember the real cause of any failure."""
+        try:
+            return self._backend.process(event_id, audio_ref)
+        except PipelineError as e:
+            self.last_error = str(e)
+            raise
 
     def process(self, event_id: str, audio_ref: str) -> tuple[PipelineResult, int]:
         attempts = 0
@@ -55,9 +64,9 @@ class ResilientPipeline:
             for attempt in retrying:
                 with attempt:
                     attempts = attempt.retry_state.attempt_number
-                    result = self.breaker.call(self._backend.process, event_id, audio_ref)
+                    result = self.breaker.call(self._call_backend, event_id, audio_ref)
             return result, attempts
         except pybreaker.CircuitBreakerError as e:
-            raise CallFailed("circuit_open", attempts) from e
+            raise CallFailed(f"circuit_open (last: {self.last_error})", attempts) from e
         except PipelineError as e:
             raise CallFailed(str(e), attempts) from e
