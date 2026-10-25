@@ -1,0 +1,18 @@
+region      = "ap-south-1"
+project     = "voice-agent"
+environment = "dev"
+
+resilience_image = "at1asflame/ecs-test:service"
+mock_image       = "at1asflame/ecs-test:mock"
+
+# Must match what your containers actually listen on and serve
+resilience_port        = 8000
+resilience_health_path = "/health"
+mock_port              = 9000
+mock_health_path       = "/health"
+
+# X86_64 or ARM64: must match how the images were built
+cpu_architecture = "X86_64"
+
+enable_blue_green = false # true = blue/green for both services, false = rolling update
+bake_time_minutes = 5
