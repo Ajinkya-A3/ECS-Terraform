@@ -20,16 +20,16 @@ resource "aws_cloudwatch_log_group" "mock" {
 locals {
   mock_url = "http://${aws_lb.mock.dns_name}"
 
+  # Wired by Terraform: the internal ALB URL (port 80 on the ALB forwards to the mock's 9000)
   resilience_env = merge(
     {
-      PORT            = tostring(var.resilience_port)
-      DEPENDENCY_URL  = local.mock_url
-      DEPENDENCY_KIND = "mock"
+      PIPELINE_BACKEND = "http"
+      PIPELINE_URL     = local.mock_url
     },
-    var.resilience_env
+    var.resilience_env # tfvars values are applied last, so they can override the above
   )
 
-  mock_env = merge({ PORT = tostring(var.mock_port) }, var.mock_env)
+  mock_env = var.mock_env
 }
 
 # ---------------- resilience-layer (public ALB) ----------------
